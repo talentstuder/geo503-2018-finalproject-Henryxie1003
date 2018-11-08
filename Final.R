@@ -1,5 +1,9 @@
 library(httr)
 library(jsonlite)
+library(RCurl)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
 
 #log in the system with NASA EarthData account username and password
 secret <- base64_enc(paste("henryxie1003", "100394Xie", sep = ":"))
@@ -83,3 +87,22 @@ response <- GET(paste("https://lpdaacsvc.cr.usgs.gov/appeears/api/bundle/", task
 #read and view data
 data<-read.csv(file_name)
 View(data)
+
+#read data from my github
+data<-read.csv(text=getURL("https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv"))
+View(data)
+
+#data wrangling
+#filter out cloudy pixel and add year marker to each observation
+data_nonCloud<-filter(data,MOD13A2_006__1_km_16_days_VI_Quality_MODLAND!='0b10'& MOD13A2_006__1_km_16_days_VI_Quality_Adjacent_cloud_detected!='0b1'& data$MOD13A2_006__1_km_16_days_VI_Quality_Aerosol_Quantity!='0b11')
+data_nonCloud$Year<-substr(data_nonCloud$Date,1,4)
+data_nonCloud$NumDays<-yday(data_nonCloud$Date)
+
+
+#plot data
+ggplot(data_nonCloud,aes(x=NumDays,y=MOD13A2_006__1_km_16_days_NDVI,col=Year))+
+  geom_smooth(method='auto',span=0.55,fill=NA,se=F)+
+  ylim(0.0,1.0)+
+  labs(x='Number of days',y='NDVI')+
+  theme_bw()
+
