@@ -19,7 +19,7 @@ token_response
 response_p <- GET("https://lpdaacsvc.cr.usgs.gov/appeears/api/product")
 product_response <- toJSON(content(response_p), auto_unbox = TRUE)
 
-# create a list indexed by the product name and version
+# create a list indexed by the product name and version (optional)
 products <- fromJSON(product_response)
 products <- setNames(split(products, seq(nrow(products))), products$ProductAndVersion)
 
@@ -31,11 +31,15 @@ task <- '{
 "dates": [
 {
   "startDate": "01-01-2008",
-  "endDate": "06-30-2018"
+  "endDate": "11-01-2018"
 }],
   "layers": [
   {
 "product": "MOD13A2.006",
+  "layer": "_1_km_16_days_NDVI"
+  },
+  {
+"product": "MYD13A2.006",
   "layer": "_1_km_16_days_NDVI"
   }],
   "coordinates": [
@@ -73,7 +77,7 @@ bundle_response
 #get csv file id and name
 file_list<-fromJSON(bundle_response)$files
 file_id<-file_list$file_id[file_list$file_type=="csv"]
-file_name<-file_list$file_name[file_list$file_id==file_id]
+file_name<-file_list$file_name[file_list$file_type=="csv"]
 
 # create a destination directory to store the file in
 dest_dir <- getwd()
@@ -81,28 +85,67 @@ filepath <- paste(dest_dir, file_name, sep = '/')
 suppressWarnings(dir.create(dirname(filepath)))
 
 # write the file to disk using the destination directory and file name 
-response <- GET(paste("https://lpdaacsvc.cr.usgs.gov/appeears/api/bundle/", task_id, '/', file_id, sep = ""),
-                write_disk(filepath, overwrite = TRUE), progress(), add_headers(Authorization = token))
+for(i in 1:length(file_id)){
+  response <- GET(paste("https://lpdaacsvc.cr.usgs.gov/appeears/api/bundle/", task_id, '/', file_id[i], sep = ""),
+                write_disk(filepath[i], overwrite = TRUE), progress(), add_headers(Authorization = token))
+  }
 
 #read and view data
 data<-read.csv(file_name)
 View(data)
 
-#read data from my github
-data<-read.csv(text=getURL("https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv"))
-View(data)
+#read data from my github repository
+data1<-read.csv(text=getURL("https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv"))
+data2<-read.csv(text=getURL("https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MYD13A2-006-results.csv"))
+View(data1)
+View(data2)
 
 #data wrangling
-#filter out cloudy pixel and add year marker to each observation
-data_nonCloud<-filter(data,MOD13A2_006__1_km_16_days_VI_Quality_MODLAND!='0b10'& MOD13A2_006__1_km_16_days_VI_Quality_Adjacent_cloud_detected!='0b1'& data$MOD13A2_006__1_km_16_days_VI_Quality_Aerosol_Quantity!='0b11')
-data_nonCloud$Year<-substr(data_nonCloud$Date,1,4)
-data_nonCloud$NumDays<-yday(data_nonCloud$Date)
+#filter out cloudy pixel
+data1_nonCloud<-filter(data1,MOD13A2_006__1_km_16_days_VI_Quality_MODLAND!='0b10')
+data2_nonCloud<-filter(data2,MYD13A2_006__1_km_16_days_VI_Quality_MODLAND!='0b10')
 
+#combine two data frame and rename column
+data1_new<-data1_nonCloud%>%select(Date,MOD13A2_006__1_km_16_days_NDVI)
+colnames(data1_new)[2]<-'NDVI'
+data2_new<-data2_nonCloud%>%select(Date,MYD13A2_006__1_km_16_days_NDVI)
+colnames(data2_new)[2]<-'NDVI'
+data_combine<-rbind(data1_new,data2_new)
+
+#add year and number of days marker to each observation
+data_combine$Year<-substr(data_combine$Date,1,4)
+data_combine$NumDays<-yday(data_combine$Date)
+
+#SOS and EOS
+SOS_range<-data_combine%>%filter(NumDays>=50&NumDays<=150)
+SOS<-data.frame(Year=character(),SOS=double())
+for (i in 2008:2018) {
+  SOS_t<-lm(NumDays~NDVI, SOS_range%>%filter(Year==i))%>%predict(data.frame(NDVI = c(0.5)))
+  SOS<-rbind(SOS,c(i,SOS_t))
+}
+names(SOS) <- c("Year", "SOS")
+SOS$Year<-as.character(SOS$Year)
+
+EOS_range<-data_combine%>%filter(NumDays>=250&NumDays<=350)
+EOS<-data.frame(Year=integer(),SOS=double())
+for (i in 2008:2017) {
+  EOS_t<-lm(NumDays~NDVI, EOS_range%>%filter(Year==i))%>%predict(data.frame(NDVI = c(0.5)))
+  EOS<-rbind(EOS,c(i,EOS_t))
+}
+names(EOS) <- c("Year", "EOS")
+EOS$Year<-as.character(EOS$Year)
 
 #plot data
-ggplot(data_nonCloud,aes(x=NumDays,y=MOD13A2_006__1_km_16_days_NDVI,col=Year))+
-  geom_smooth(method='auto',span=0.55,fill=NA,se=F)+
+ggplot(data_combine,aes(x=NumDays,y=NDVI,col=Year))+
+  geom_smooth(method='auto',span=0.5,fill=NA,se=F)+
   ylim(0.0,1.0)+
   labs(x='Number of days',y='NDVI')+
   theme_bw()
 
+ggplot(data = SOS,aes(x=Year,y=SOS,group=1))+
+  geom_line(colour='blue')+
+  theme_bw()
+
+ggplot(data = EOS,aes(x=Year,y=EOS,group=1))+
+  geom_line(colour='red')+
+  theme_bw()

@@ -10,22 +10,11 @@ Phenology has been proven as a sensitive and integrative indicator of climate va
 # Materials and methods
 The traditional way of monitoring forest phenology uses remote sensing data such as Landsat TM or MODIS data which is efficient in large-scale studies. 
 
-You can do bullets like this:
-
-* The first most important thing
-* The second most important thing
-* The third most important thing
-
-You can do numbers like this:
-
-1. The first most important thing
-2. The second most important thing
-3. The third most important thing
 
 See [http://rmarkdown.rstudio.com/](http://rmarkdown.rstudio.com/) for all the amazing things you can do.
 
 
-Load any required packages in a code chunk (you may need to install some packages):
+Load required packages in a code chunk (you may need to install some packages):
 
 ```{r, message=F, warning=F}
 library(httr)
