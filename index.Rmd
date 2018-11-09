@@ -1,17 +1,14 @@
 ---
-title: "I have the best titles"
-author: Your name here
-subtitle: Subtitle here if desired
+title: "Tracking tree phenology of Nature View Park in Buffalo"
+author: "Yuhao Xie"
+subtitle: null
 ---
 
 # Introduction
-My really awesome and complete introduction will go here.  
-
-> I know words.  I have the best words.  ~ Donald Trump
+Phenology has been proven as a sensitive and integrative indicator of climate variability and vegetation growth responses to climate change (X. Zhao, K. Tan, 2011). The understanding of phenology brings significant insight into both climate and vegetation interactions and their impacts on different spatial and temporal scales (Y. He, 2013). NDVI and EVI are two most widely used indexes in vegetation phenology study.This project aims at tracking phenology change of forest at Nature View Park in Buffalo in the past decade. 
 
 # Materials and methods
-
-Narrative and most code will go here.  Describe what you are doing and show how to do it (with code).
+The traditional way of monitoring forest phenology uses remote sensing data such as Landsat TM or MODIS data which is efficient in large-scale studies. 
 
 You can do bullets like this:
 
@@ -28,18 +25,15 @@ You can do numbers like this:
 See [http://rmarkdown.rstudio.com/](http://rmarkdown.rstudio.com/) for all the amazing things you can do.
 
 
-Here's my first code chunk.
-```{r}
-1+2
-```
-
 Load any required packages in a code chunk (you may need to install some packages):
 
 ```{r, message=F, warning=F}
-library(dplyr)
+library(httr)
+library(jsonlite)
+library(RCurl)
 library(ggplot2)
-library(maps)
-library(spocc)
+library(dplyr)
+library(lubridate)
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
 ```
 
