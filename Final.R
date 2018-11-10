@@ -149,3 +149,4 @@ ggplot(data = SOS,aes(x=Year,y=SOS,group=1))+
 ggplot(data = EOS,aes(x=Year,y=EOS,group=1))+
   geom_line(colour='red')+
   theme_bw()
+
