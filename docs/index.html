@@ -9,10 +9,10 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="Your name here" />
+<meta name="author" content="Yuhao Xie" />
 
 
-<title>I have the best titles</title>
+<title>Tracking tree phenology of Nature View Park in Buffalo</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -303,79 +303,172 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">I have the best titles</h1>
-<h3 class="subtitle"><em>Subtitle here if desired</em></h3>
-<h4 class="author"><em>Your name here</em></h4>
+<h1 class="title toc-ignore">Tracking tree phenology of Nature View Park in Buffalo</h1>
+<h4 class="author"><em>Yuhao Xie</em></h4>
 
 </div>
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>My really awesome and complete introduction will go here.</p>
-<blockquote>
-<p>I know words. I have the best words. ~ Donald Trump</p>
-</blockquote>
+<hr />
+<p>Phenology has been proven as a sensitive and integrative indicator of climate variability and vegetation growth responses to climate change (X. Zhao, K. Tan, 2011). The understanding of phenology brings significant insight into both climate and vegetation interactions and their impacts on different spatial and temporal scales (Y. He, 2013). NDVI and EVI are two most widely used indexes in vegetation phenology study.This project aims at tracking phenology change of forest at Nature View Park in Buffalo in the past decade. Further analysis will estimate the Start of Season(SOS) and End of Season(EOS) for each year during the last decade illustrate a evidence of potential climate change.<br />
+<br><br></p>
 </div>
-<div id="materials-and-methods" class="section level1">
-<h1>Materials and methods</h1>
-<p>Narrative and most code will go here. Describe what you are doing and show how to do it (with code).</p>
-<p>You can do bullets like this:</p>
-<ul>
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
-</ul>
-<p>You can do numbers like this:</p>
-<ol style="list-style-type: decimal">
-<li>The first most important thing</li>
-<li>The second most important thing</li>
-<li>The third most important thing</li>
-</ol>
-<p>See <a href="http://rmarkdown.rstudio.com/" class="uri">http://rmarkdown.rstudio.com/</a> for all the amazing things you can do.</p>
-<p>Here’s my first code chunk.</p>
-<pre class="r"><code>1+2</code></pre>
-<pre><code>## [1] 3</code></pre>
-<p>Load any required packages in a code chunk (you may need to install some packages):</p>
-<pre class="r"><code>library(dplyr)
+<div id="data-and-methods" class="section level1">
+<h1>Data and methods</h1>
+<hr />
+<div id="data-acquisition" class="section level2">
+<h2>Data acquisition</h2>
+<p>The traditional way of monitoring forest phenology uses remote sensing data such as Landsat TM or MODIS data which is efficient in large-scale studies.</p>
+<p>In this study, I use the Application for Extracting and Exploring Analysis Ready Samples(AρρEEARS) to download MODIS data.<a href="https://lpdaacsvc.cr.usgs.gov/appeears/">AρρEEARS</a> provides a simple and efficient way to access and transform geospatial data from a variety of federal data archives. It enables users to subset geospatial datasets using spatial, temporal, and band/layer parameters. Two types of sample requests are available: point samples for geographic coordinates and area samples for spatial areas via vector polygons.</p>
+<p>This project bases on both two satellites of MODIS system, Aqua and Terra, to extract the NDVI of the Nature View Park in Buffalo. The 16-day NDVI layer of MODIS Vegetation Indices product are used. Each satellite provides global vegetation indices including NDVI, EVI and LAI every 16 days with 1km spatial resolution. But Aqua and Terra are on the two different orbits which let them have a 8 days interval between each other for visiting a same place. Thus, we can have 8 days interval NDVI data for the study area rely on combining data from both two satellites. The time period of data is from 01/01/2008 to 11/01/2018. AρρEEARS also provides API for submitting request and downloading data from R.</p>
+<p>Load required packages for using AρρEEARS API and further wrangling on data(you may need to install some packages):</p>
+<pre class="r"><code>library(httr)
+library(jsonlite)
+library(RCurl)
 library(ggplot2)
-library(maps)
-library(spocc)
+library(dplyr)
+library(lubridate)
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling</code></pre>
-<p>We are going to use the <code>occ()</code> function to download <em>occurrence</em> records for the American robin (<em>Turdus migratorius</em>) from the <a href="gbif.org">Global Biodiversity Information Facility</a>.</p>
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/Turdus-migratorius-002.jpg" alt="alt text" width="200"> <small><small><small>Licensed under CC BY-SA 3.0 via <a href="https://commons.wikimedia.org/wiki/File:Turdus-migratorius-002.jpg#/media/File:Turdus-migratorius-002.jpg">Wikimedia Commons</a></small></small></small></p>
-<pre class="r"><code>## define which species to query
-sp=&#39;Turdus migratorius&#39;
+<p><br></p>
+<p>AρρEEARS API requires user to have an account and log in before use further functions. You can sign up an account on <a href="https://lpdaacsvc.cr.usgs.gov/appeears/">AρρEEARS website</a>. Since most of people visit this project don’t have account for that. I downloaded the required data by the code chunks below and pushed it to my github repository and provide codes in the next section for downloading data from my repository.<br />
+For using the API, using the code below to log in with your username and password first and check the log in status.</p>
+<pre class="r"><code>#log in the system with NASA EarthData account username and password
+secret &lt;- base64_enc(paste(&quot;your username&quot;, &quot;password&quot;, sep = &quot;:&quot;))
+response &lt;- POST(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/login&quot;, 
+                 add_headers(&quot;Authorization&quot; = paste(&quot;Basic&quot;, gsub(&quot;\n&quot;, &quot;&quot;, secret)),
+                             &quot;Content-Type&quot; = &quot;application/x-www-form-urlencoded;charset=UTF-8&quot;), 
+                 body = &quot;grant_type=client_credentials&quot;)
 
-## run the query and convert to data.frame()
-d = occ(query=sp, from=&#39;ebird&#39;,limit = 100) %&gt;% occ2df()</code></pre>
-<p>This can take a few seconds.</p>
-<pre class="r"><code># Load coastline
-map=map_data(&quot;world&quot;)
+#check log in status
+token_response &lt;- prettify(toJSON(content(response), auto_unbox = TRUE))
+token_response
+response_p &lt;- GET(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/product&quot;)
+product_response &lt;- toJSON(content(response_p), auto_unbox = TRUE)</code></pre>
+<p><br></p>
+<p>The API requires a JavaScript Object Notation(JSON) format task file for submitting a request. the task file should includes the sample type, period, product id and layer name. For point sample, only the geographic coordiates needed. Since the spatial resolution is 1km on MODIS data, one pixel of the image should be enough to cover the whole study area. As the task file below describes, the 16-days NDVI data of the study area with 1km resolution from both two satellites from 2008 to 2018 will be included in request. It can take a few seconds even minutes for completing the request.</p>
+<pre class="r"><code># create a task request
+task &lt;- &#39;{
+          &quot;task_type&quot;: &quot;point&quot;,
+&quot;task_name&quot;: &quot;my-task&quot;,
+&quot;params&quot;:{
+&quot;dates&quot;: [
+{
+  &quot;startDate&quot;: &quot;01-01-2008&quot;,
+  &quot;endDate&quot;: &quot;11-01-2018&quot;
+}],
+  &quot;layers&quot;: [
+  {
+&quot;product&quot;: &quot;MOD13A2.006&quot;,
+  &quot;layer&quot;: &quot;_1_km_16_days_NDVI&quot;
+  },
+  {
+&quot;product&quot;: &quot;MYD13A2.006&quot;,
+  &quot;layer&quot;: &quot;_1_km_16_days_NDVI&quot;
+  }],
+  &quot;coordinates&quot;: [
+  {
+  &quot;latitude&quot;: 43.0444,
+  &quot;longitude&quot;: -78.7833
+  }]
+}
+}&#39;
+task &lt;- fromJSON(task)
+task &lt;- toJSON(task, auto_unbox=TRUE)
 
-ggplot(d,aes(x=longitude,y=latitude))+
-  geom_polygon(aes(x=long,y=lat,group=group),data=map)+
-  geom_point(col=&quot;red&quot;)+
-  coord_equal()</code></pre>
-<div class="figure">
-<img src="index_files/figure-html/unnamed-chunk-4-1.png" alt="Map illustrating the known occurrence locations" width="576" />
-<p class="caption">
-Map illustrating the known occurrence locations
-</p>
+#submit the task request
+token &lt;- paste(&quot;Bearer&quot;, fromJSON(token_response)$token)
+response &lt;- POST(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/task&quot;, body = task, encode = &quot;json&quot;, 
+                 add_headers(Authorization = token, &quot;Content-Type&quot; = &quot;application/json&quot;))
+task_response &lt;- prettify(toJSON(content(response), auto_unbox = TRUE))
+task_response</code></pre>
+<p><br></p>
+<p>The point sample requset results in two csv files including all the acquired data and quality descriptions. The API does not support bath download, a for loop is used to download both to csv files to the working directory.</p>
+<pre class="r"><code>#check task bundle
+token &lt;- paste(&quot;Bearer&quot;, fromJSON(token_response)$token)
+response &lt;- GET(paste(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/bundle/&quot;, task_id, sep = &quot;&quot;), add_headers(Authorization = token))
+bundle_response &lt;- prettify(toJSON(content(response), auto_unbox = TRUE))
+bundle_response
+
+#Download file
+#get csv file id and name
+file_list&lt;-fromJSON(bundle_response)$files
+file_id&lt;-file_list$file_id[file_list$file_type==&quot;csv&quot;]
+file_name&lt;-file_list$file_name[file_list$file_type==&quot;csv&quot;]
+
+# create a destination directory to store the file in
+dest_dir &lt;- getwd()
+filepath &lt;- paste(dest_dir, file_name, sep = &#39;/&#39;)
+suppressWarnings(dir.create(dirname(filepath)))
+
+# write the file to disk using the destination directory and file name 
+for(i in 1:length(file_id)){
+  response &lt;- GET(paste(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/bundle/&quot;, task_id, &#39;/&#39;, file_id[i], sep = &quot;&quot;),
+                write_disk(filepath[i], overwrite = TRUE), progress(), add_headers(Authorization = token))
+  }
+
+#read and view data
+data&lt;-read.csv(file_name)
+View(data)</code></pre>
+<p><br><br></p>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<pre class="r"><code>#read data from my github repository
+data1&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv&quot;))
+data2&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MYD13A2-006-results.csv&quot;))</code></pre>
+<p><br></p>
+<pre class="r"><code>#data wrangling
+#filter out cloudy pixel
+data1_nonCloud&lt;-filter(data1,MOD13A2_006__1_km_16_days_VI_Quality_MODLAND!=&#39;0b10&#39;)
+data2_nonCloud&lt;-filter(data2,MYD13A2_006__1_km_16_days_VI_Quality_MODLAND!=&#39;0b10&#39;)
+
+#combine two data frame and rename column
+data1_new&lt;-data1_nonCloud%&gt;%select(Date,MOD13A2_006__1_km_16_days_NDVI)
+colnames(data1_new)[2]&lt;-&#39;NDVI&#39;
+data2_new&lt;-data2_nonCloud%&gt;%select(Date,MYD13A2_006__1_km_16_days_NDVI)
+colnames(data2_new)[2]&lt;-&#39;NDVI&#39;
+data_combine&lt;-rbind(data1_new,data2_new)
+
+#add year and number of days marker to each observation
+data_combine$Year&lt;-substr(data_combine$Date,1,4)
+data_combine$NumDays&lt;-yday(data_combine$Date)
+
+#estimate SOS and EOS
+SOS_range&lt;-data_combine%&gt;%filter(NumDays&gt;=50&amp;NumDays&lt;=150)
+SOS&lt;-data.frame(Year=character(),SOS=double())
+for (i in 2008:2018) {
+  SOS_t&lt;-lm(NumDays~NDVI, SOS_range%&gt;%filter(Year==i))%&gt;%predict(data.frame(NDVI = c(0.5)))
+  SOS&lt;-rbind(SOS,c(i,SOS_t))
+}
+names(SOS) &lt;- c(&quot;Year&quot;, &quot;SOS&quot;)
+SOS$Year&lt;-as.character(SOS$Year)
+
+EOS_range&lt;-data_combine%&gt;%filter(NumDays&gt;=250&amp;NumDays&lt;=350)
+EOS&lt;-data.frame(Year=integer(),SOS=double())
+for (i in 2008:2017) {
+  EOS_t&lt;-lm(NumDays~NDVI, EOS_range%&gt;%filter(Year==i))%&gt;%predict(data.frame(NDVI = c(0.5)))
+  EOS&lt;-rbind(EOS,c(i,EOS_t))
+}
+names(EOS) &lt;- c(&quot;Year&quot;, &quot;EOS&quot;)
+EOS$Year&lt;-as.character(EOS$Year)</code></pre>
+<p><br><br></p>
 </div>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
-<p>Show tables, plots, etc. and describe them.</p>
-<pre class="r"><code>hist(d$latitude)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<hr />
+<p>Show tables, plots, etc. and describe them. <img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-7-3.png" width="672" /> <br><br></p>
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>
-<p>What have you learned? Are there any broader implications?</p>
+<hr />
+<p><br><br></p>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
+<hr />
 </div>
 
 <!-- give the footer some space -->
