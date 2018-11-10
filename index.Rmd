@@ -5,16 +5,17 @@ subtitle: null
 ---
 
 # Introduction
-Phenology has been proven as a sensitive and integrative indicator of climate variability and vegetation growth responses to climate change (X. Zhao, K. Tan, 2011). The understanding of phenology brings significant insight into both climate and vegetation interactions and their impacts on different spatial and temporal scales (Y. He, 2013). NDVI and EVI are two most widely used indexes in vegetation phenology study.This project aims at tracking phenology change of forest at Nature View Park in Buffalo in the past decade. 
+Phenology has been proven as a sensitive and integrative indicator of climate variability and vegetation growth responses to climate change (X. Zhao, K. Tan, 2011). The understanding of phenology brings significant insight into both climate and vegetation interactions and their impacts on different spatial and temporal scales (Y. He, 2013). NDVI and EVI are two most widely used indexes in vegetation phenology study.This project aims at tracking phenology change of forest at Nature View Park in Buffalo in the past decade. Further analysis will estimate the Start of Season(SOS) and End of Season(EOS) for each year during the last decade illustrate a evidence of potential climate change.
 
-# Materials and methods
+# Data and methods
+##data
 The traditional way of monitoring forest phenology uses remote sensing data such as Landsat TM or MODIS data which is efficient in large-scale studies. 
+In this study, I use the Application for Extracting and Exploring Analysis Ready Samples(AρρEEARS) to download MODIS data.[AρρEEARS](https://lpdaacsvc.cr.usgs.gov/appeears/) provides a simple and efficient way to access and transform geospatial data from a variety of federal data archives. It enables users to subset geospatial datasets using spatial, temporal, and band/layer parameters. Two types of sample requests are available: point samples for geographic coordinates and area samples for spatial areas via vector polygons. 
+This project bases on both two satellites of MODIS system, Aqua and Terra, to extract the NDVI of the Nature View Park in Buffalo. The 16-day NDVI layer of MODIS Vegetation Indices product are used. Each satellite provides global vegetation indices including NDVI, EVI and LAI every 16 days with 1km spatial resolution. But Aqua and Terra are on the two different orbits which let them have a 8 days interval between each other for visiting a same place. Thus, we can have 8 days interval NDVI data for the study area rely on combining data from both two satellites. The time period of data is from 01/01/2008 to 11/01/2018. AρρEEARS also provides API for submitting request and downloading data from R.
 
 
-See [http://rmarkdown.rstudio.com/](http://rmarkdown.rstudio.com/) for all the amazing things you can do.
 
-
-Load required packages in a code chunk (you may need to install some packages):
+Load required packages for using AρρEEARS API and further wrangling on data(you may need to install some packages):
 
 ```{r, message=F, warning=F}
 library(httr)
