@@ -331,8 +331,11 @@ library(RCurl)
 library(ggplot2)
 library(dplyr)
 library(lubridate)
+<<<<<<< HEAD
 library(knitr)
 library(kableExtra)
+=======
+>>>>>>> 0709d319e4c7c9cf868194c9ecb4c6592b07848f
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling</code></pre>
 <p><br></p>
 <p>AρρEEARS API requires user to have an account and log in before use further functions. You can sign up an account on <a href="https://lpdaacsvc.cr.usgs.gov/appeears/">AρρEEARS website</a>. Since most of people visit this project don’t have account for that. I downloaded the required data by the code chunks below and pushed it to my github repository and provide codes in the next section for downloading data from my repository.<br />
@@ -418,6 +421,7 @@ View(data)</code></pre>
 </div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
+<<<<<<< HEAD
 <p>This page use the code chunk below to download required data from my github repository. <a href="https://cran.r-project.org/web/packages/RCurl/index.html">RCurl</a> package is used for getting file through HTTPS url.</p>
 <pre class="r"><code>#read data from my github repository
 data1&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv&quot;))
@@ -21098,6 +21102,11 @@ No
 </tbody>
 </table>
 </div>
+=======
+<pre class="r"><code>#read data from my github repository
+data1&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv&quot;))
+data2&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MYD13A2-006-results.csv&quot;))</code></pre>
+>>>>>>> 0709d319e4c7c9cf868194c9ecb4c6592b07848f
 <p><br></p>
 <pre class="r"><code>#data wrangling
 #filter out cloudy pixel
@@ -21139,7 +21148,11 @@ EOS$Year&lt;-as.character(EOS$Year)</code></pre>
 <div id="results" class="section level1">
 <h1>Results</h1>
 <hr />
+<<<<<<< HEAD
 <p>Show tables, plots, etc. and describe them. <img src="index_files/figure-html/unnamed-chunk-8-1.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-8-2.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-8-3.png" width="672" /> <br><br></p>
+=======
+<p>Show tables, plots, etc. and describe them. <img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-7-3.png" width="672" /> <br><br></p>
+>>>>>>> 0709d319e4c7c9cf868194c9ecb4c6592b07848f
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>
