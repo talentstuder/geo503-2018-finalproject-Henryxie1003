@@ -331,11 +331,8 @@ library(RCurl)
 library(ggplot2)
 library(dplyr)
 library(lubridate)
-<<<<<<< HEAD
 library(knitr)
 library(kableExtra)
-=======
->>>>>>> 0709d319e4c7c9cf868194c9ecb4c6592b07848f
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling</code></pre>
 <p><br></p>
 <p>AρρEEARS API requires user to have an account and log in before use further functions. You can sign up an account on <a href="https://lpdaacsvc.cr.usgs.gov/appeears/">AρρEEARS website</a>. Since most of people visit this project don’t have account for that. I downloaded the required data by the code chunks below and pushed it to my github repository and provide codes in the next section for downloading data from my repository.<br />
@@ -351,7 +348,8 @@ response &lt;- POST(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/login&quot;
 token_response &lt;- prettify(toJSON(content(response), auto_unbox = TRUE))
 token_response
 response_p &lt;- GET(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/product&quot;)
-product_response &lt;- toJSON(content(response_p), auto_unbox = TRUE)</code></pre>
+product_response &lt;- toJSON(content(response_p), auto_unbox = TRUE)
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code></pre>
 <p><br></p>
 <p>The API requires a JavaScript Object Notation(JSON) format task file for submitting a request. the task file should includes the sample type, period, product id and layer name. For point sample, only the geographic coordiates needed. Since the spatial resolution is 1km on MODIS data, one pixel of the image should be enough to cover the whole study area. As the task file below describes, the 16-days NDVI data of the study area with 1km resolution from both two satellites from 2008 to 2018 will be included in request. It can take a few seconds even minutes for completing the request.</p>
 <pre class="r"><code># create a task request
@@ -421,14 +419,13 @@ View(data)</code></pre>
 </div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
-<<<<<<< HEAD
 <p>This page use the code chunk below to download required data from my github repository. <a href="https://cran.r-project.org/web/packages/RCurl/index.html">RCurl</a> package is used for getting file through HTTPS url.</p>
 <pre class="r"><code>#read data from my github repository
 data1&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv&quot;))
 data2&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MYD13A2-006-results.csv&quot;))</code></pre>
 Example of data from Terra MODIS:
 <div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:300px; overflow-x: scroll; width:100%; ">
-<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:right;">
@@ -21102,11 +21099,6 @@ No
 </tbody>
 </table>
 </div>
-=======
-<pre class="r"><code>#read data from my github repository
-data1&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv&quot;))
-data2&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MYD13A2-006-results.csv&quot;))</code></pre>
->>>>>>> 0709d319e4c7c9cf868194c9ecb4c6592b07848f
 <p><br></p>
 <pre class="r"><code>#data wrangling
 #filter out cloudy pixel
@@ -21142,17 +21134,134 @@ for (i in 2008:2017) {
 }
 names(EOS) &lt;- c(&quot;Year&quot;, &quot;EOS&quot;)
 EOS$Year&lt;-as.character(EOS$Year)</code></pre>
+<p>======= ``` <br></p>
+<p>The API requires a JavaScript Object Notation(JSON) format task file for submitting a request. the task file should includes the sample type, period, product id and layer name. For point sample, only the geographic coordiates needed. Since the spatial resolution is 1km on MODIS data, one pixel of the image should be enough to cover the whole study area. As the task file below describes, the 16-days NDVI data of the study area with 1km resolution from both two satellites from 2008 to 2018 will be included in request. It can take a few seconds even minutes for completing the request.</p>
+<pre class="r"><code># create a task request
+task &lt;- &#39;{
+          &quot;task_type&quot;: &quot;point&quot;,
+&quot;task_name&quot;: &quot;my-task&quot;,
+&quot;params&quot;:{
+&quot;dates&quot;: [
+{
+  &quot;startDate&quot;: &quot;01-01-2008&quot;,
+  &quot;endDate&quot;: &quot;11-01-2018&quot;
+}],
+  &quot;layers&quot;: [
+  {
+&quot;product&quot;: &quot;MOD13A2.006&quot;,
+  &quot;layer&quot;: &quot;_1_km_16_days_NDVI&quot;
+  },
+  {
+&quot;product&quot;: &quot;MYD13A2.006&quot;,
+  &quot;layer&quot;: &quot;_1_km_16_days_NDVI&quot;
+  }],
+  &quot;coordinates&quot;: [
+  {
+  &quot;latitude&quot;: 43.0444,
+  &quot;longitude&quot;: -78.7833
+  }]
+}
+}&#39;
+task &lt;- fromJSON(task)
+task &lt;- toJSON(task, auto_unbox=TRUE)
+
+#submit the task request
+token &lt;- paste(&quot;Bearer&quot;, fromJSON(token_response)$token)
+response &lt;- POST(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/task&quot;, body = task, encode = &quot;json&quot;, 
+                 add_headers(Authorization = token, &quot;Content-Type&quot; = &quot;application/json&quot;))
+task_response &lt;- prettify(toJSON(content(response), auto_unbox = TRUE))
+task_response</code></pre>
+<p><br></p>
+<p>The point sample requset results in two csv files including all the acquired data and quality descriptions. The API does not support bath download, a for loop is used to download both to csv files to the working directory.</p>
+<pre class="r"><code>#check task bundle
+token &lt;- paste(&quot;Bearer&quot;, fromJSON(token_response)$token)
+response &lt;- GET(paste(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/bundle/&quot;, task_id, sep = &quot;&quot;), add_headers(Authorization = token))
+bundle_response &lt;- prettify(toJSON(content(response), auto_unbox = TRUE))
+bundle_response
+
+#Download file
+#get csv file id and name
+file_list&lt;-fromJSON(bundle_response)$files
+file_id&lt;-file_list$file_id[file_list$file_type==&quot;csv&quot;]
+file_name&lt;-file_list$file_name[file_list$file_type==&quot;csv&quot;]
+
+# create a destination directory to store the file in
+dest_dir &lt;- getwd()
+filepath &lt;- paste(dest_dir, file_name, sep = &#39;/&#39;)
+suppressWarnings(dir.create(dirname(filepath)))
+
+# write the file to disk using the destination directory and file name 
+for(i in 1:length(file_id)){
+  response &lt;- GET(paste(&quot;https://lpdaacsvc.cr.usgs.gov/appeears/api/bundle/&quot;, task_id, &#39;/&#39;, file_id[i], sep = &quot;&quot;),
+                write_disk(filepath[i], overwrite = TRUE), progress(), add_headers(Authorization = token))
+  }
+
+#read and view data
+data&lt;-read.csv(file_name)
+View(data)</code></pre>
 <p><br><br></p>
+</div>
+<div id="methods-1" class="section level2">
+<h2>Methods</h2>
+<pre class="r"><code>#read data from my github repository
+data1&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MOD13A2-006-results.csv&quot;))
+data2&lt;-read.csv(text=getURL(&quot;https://raw.githubusercontent.com/AdamWilsonLabEDU/geo503-2018-finalproject-Henryxie1003/master/my-task-MYD13A2-006-results.csv&quot;))</code></pre>
+<p><br></p>
+<pre class="r"><code>#data wrangling
+#filter out cloudy pixel
+data1_nonCloud&lt;-filter(data1,MOD13A2_006__1_km_16_days_VI_Quality_MODLAND!=&#39;0b10&#39;)
+data2_nonCloud&lt;-filter(data2,MYD13A2_006__1_km_16_days_VI_Quality_MODLAND!=&#39;0b10&#39;)
+
+#combine two data frame and rename column
+data1_new&lt;-data1_nonCloud%&gt;%select(Date,MOD13A2_006__1_km_16_days_NDVI)
+colnames(data1_new)[2]&lt;-&#39;NDVI&#39;
+data2_new&lt;-data2_nonCloud%&gt;%select(Date,MYD13A2_006__1_km_16_days_NDVI)
+colnames(data2_new)[2]&lt;-&#39;NDVI&#39;
+data_combine&lt;-rbind(data1_new,data2_new)
+
+#add year and number of days marker to each observation
+data_combine$Year&lt;-substr(data_combine$Date,1,4)
+data_combine$NumDays&lt;-yday(data_combine$Date)
+
+#estimate SOS and EOS
+SOS_range&lt;-data_combine%&gt;%filter(NumDays&gt;=50&amp;NumDays&lt;=150)
+SOS&lt;-data.frame(Year=character(),SOS=double())
+for (i in 2008:2018) {
+  SOS_t&lt;-lm(NumDays~NDVI, SOS_range%&gt;%filter(Year==i))%&gt;%predict(data.frame(NDVI = c(0.5)))
+  SOS&lt;-rbind(SOS,c(i,SOS_t))
+}
+names(SOS) &lt;- c(&quot;Year&quot;, &quot;SOS&quot;)
+SOS$Year&lt;-as.character(SOS$Year)
+
+EOS_range&lt;-data_combine%&gt;%filter(NumDays&gt;=250&amp;NumDays&lt;=350)
+EOS&lt;-data.frame(Year=integer(),SOS=double())
+for (i in 2008:2017) {
+  EOS_t&lt;-lm(NumDays~NDVI, EOS_range%&gt;%filter(Year==i))%&gt;%predict(data.frame(NDVI = c(0.5)))
+  EOS&lt;-rbind(EOS,c(i,EOS_t))
+}
+names(EOS) &lt;- c(&quot;Year&quot;, &quot;EOS&quot;)
+EOS$Year&lt;-as.character(EOS$Year)</code></pre>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>0709d319e4c7c9cf868194c9ecb4c6592b07848f <br><br></p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 </div>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
 <hr />
-<<<<<<< HEAD
-<p>Show tables, plots, etc. and describe them. <img src="index_files/figure-html/unnamed-chunk-8-1.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-8-2.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-8-3.png" width="672" /> <br><br></p>
-=======
-<p>Show tables, plots, etc. and describe them. <img src="index_files/figure-html/unnamed-chunk-7-1.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-7-2.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-7-3.png" width="672" /> <br><br></p>
->>>>>>> 0709d319e4c7c9cf868194c9ecb4c6592b07848f
+<p>Show tables, plots, etc. and describe them. <img src="index_files/figure-html/unnamed-chunk-12-1.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-12-2.png" width="672" /><img src="index_files/figure-html/unnamed-chunk-12-3.png" width="672" /> <br><br></p>
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>
