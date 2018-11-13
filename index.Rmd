@@ -162,6 +162,7 @@ kable(data_combine) %>%kable_styling(c("striped", "bordered")) %>%scroll_box(wid
 ```
 <br>
 
+Vegetation phenological parameters such as start of season (SOS), end of season (EOS), and length of growing season (LGS) have been broadly used in studies of interactions between climate vegetation, especially for forest research. SOS and EOS are defined as the first and last day of having significant photosynthetic activity in the year. NDVI is the most commonly used index to denote photosynthetic activity. The simple way to detect SOS and EOS is setting a threshold on NDVI and considering the first day it go over the threshold in spring as SOS and the below the threshold in autumn as EOS. Since the MODIS data only provide NDVI every 8 days, a linear regression model is built respectively on spring and autumn data for each year. Data from 50 to 150 days in each year are considered as spring data for building a spring model and autumn data is from 250 to 350 days. Threshold is set on 0.5 for detect SOS and EOS.
 ```{r}
 #estimate SOS and EOS
 SOS_range<-data_combine%>%filter(NumDays>=50&NumDays<=150)
