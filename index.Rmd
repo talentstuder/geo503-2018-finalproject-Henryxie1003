@@ -9,6 +9,12 @@ subtitle: null
 Phenology has been proven as a sensitive and integrative indicator of climate variability and vegetation growth responses to climate change (X. Zhao, K. Tan, 2011). The understanding of phenology brings significant insight into both climate and vegetation interactions and their impacts on different spatial and temporal scales (Y. He, 2013). NDVI and EVI are two most widely used indexes in vegetation phenology study.This project aims at tracking phenology change of forest at Nature View Park in Buffalo in the past decade. Further analysis will estimate the Start of Season(SOS) and End of Season(EOS) for each year during the last decade illustrate a evidence of potential climate change.  
 <br><br>
 
+The study is very fashionable and use quite good data. 
+Pros:
+Fashionable idea, up to date method, clear structure
+Cons:
+For the regression part, usually we need validation on the regression result to make research more convincible. This can be concluded in the result or conclusion part
+
 # Data and methods  
 ***
 ##Data acquisition
